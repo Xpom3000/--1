@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VibeCoder — Вайб-кодинг лендингов</title>
+<style>
+  :root{
+    --cream:#f8f4ec;
+    --cream-2:#f2ecdf;
+    --ink:#171512;
+    --ink-soft:#54504a;
+    --orange:#ff7a30;
+    --orange-2:#f4a24a;
+    --olive:#b8c95a;
+    --card:#ffffff;
+    --border:#e9e2d4;
+    --radius:20px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth; scroll-padding-top:90px;}
+  body{
+    font-family:'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background:linear-gradient(180deg,
+      #f9f6ef 0%,
+      #f9f6ef 8%,
+      #fbf0e2 20%,
+      #f9f6ef 32%,
+      #f6f2e6 46%,
+      #f9f6ef 58%,
+      #faf1e0 72%,
+      #f6f3e9 85%,
+      #f9f6ef 100%);
+    background-attachment:fixed;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{text-decoration:none; color:inherit;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 32px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    background:#fbe9d9; color:var(--orange);
+    border:1px solid #f6d7b3;
+    padding:8px 18px; border-radius:999px;
+    font-size:13px; font-weight:600; letter-spacing:.02em;
+  }
+  .eyebrow.uc{text-transform:uppercase; letter-spacing:.04em;}
+  .grad-text{
+    background:linear-gradient(90deg, var(--orange) 0%, var(--orange-2) 55%, var(--olive) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .solid-orange{color:var(--orange);}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:15px 26px; border-radius:14px;
+    font-weight:600; font-size:15px; cursor:pointer;
+    border:1px solid transparent; transition:transform .15s ease, opacity .15s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-dark{background:var(--ink); color:#fff;}
+  .btn-light{background:#fff; color:var(--ink); border-color:var(--border);}
+
+  /* ===== NAV ===== */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(249,246,239,.7); backdrop-filter:blur(10px);
+    border-bottom:1px solid transparent;
+  }
+  header::after{
+    content:""; position:absolute; left:0; right:0; top:100%; height:36px;
+    background:linear-gradient(180deg, rgba(249,246,239,.7), transparent);
+    pointer-events:none;
+  }
+  nav.wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 32px;
+  }
+  .logo{display:flex; align-items:center; gap:10px; font-weight:800; font-size:20px;}
+  .logo-mark{
+    width:26px; height:26px; border-radius:7px;
+    background:linear-gradient(135deg, var(--orange), var(--orange-2));
+    display:inline-block; position:relative; flex-shrink:0;
+  }
+  .nav-links{display:flex; gap:34px; font-size:15px; font-weight:500; color:var(--ink-soft);}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-cta{display:none;}
+  @media(min-width:900px){ .nav-cta{display:inline-flex;} }
+  .nav-links{display:none;}
+  @media(min-width:900px){ .nav-links{display:flex;} }
+
+  /* ===== HERO ===== */
+  .hero{position:relative; padding:70px 0 40px; overflow:hidden;}
+  .hero::after{
+    content:""; position:absolute; left:0; right:0; bottom:0; height:120px;
+    background:linear-gradient(180deg, transparent, rgba(249,246,239,.9));
+    z-index:1; pointer-events:none;
+  }
+  .hero-glow{
+    position:absolute; right:-18%; top:-25%; width:1100px; height:1100px;
+    background:radial-gradient(circle, rgba(255,180,90,.4) 0%, rgba(226,205,110,.28) 40%, rgba(226,205,110,.12) 60%, transparent 72%);
+    filter:blur(6px); z-index:0; pointer-events:none;
+  }
+  .hero-waves{
+    position:absolute; left:0; right:0; bottom:0; height:70px; z-index:0; pointer-events:none;
+    background-image:repeating-linear-gradient(115deg, transparent 0 34px, rgba(255,255,255,.55) 34px 36px);
+    -webkit-mask-image:repeating-radial-gradient(circle at 0 100%, #000 0 22px, transparent 23px 44px);
+    mask-image:repeating-radial-gradient(circle at 0 100%, #000 0 22px, transparent 23px 44px);
+    opacity:.5;
+  }
+  .hero-grid{
+    position:relative; z-index:1;
+    display:grid; grid-template-columns:1fr; gap:50px; align-items:center;
+  }
+  @media(min-width:980px){ .hero-grid{grid-template-columns:1.05fr .95fr;} }
+  .hero h1{
+    font-size:clamp(34px, 5.2vw, 58px); line-height:1.08; font-weight:800;
+    letter-spacing:-.01em; margin:22px 0 22px;
+  }
+  .hero h1 span{display:block;}
+  .hero p.lead{font-size:17px; color:var(--ink-soft); max-width:520px; line-height:1.6; margin-bottom:32px;}
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:46px;}
+  .hero-feats{display:flex; gap:34px; flex-wrap:wrap;}
+  .feat{display:flex; align-items:flex-start; gap:12px; max-width:180px;}
+  .feat-ic{
+    width:40px; height:40px; border-radius:12px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+  }
+  .feat-ic.a{background:#fde7d8; color:var(--orange);}
+  .feat-ic.b{background:#f4eec2; color:#b79b2c;}
+  .feat-ic.c{background:#eaf3d6; color:#7a9a2e;}
+  .feat b{display:block; font-size:15px; margin-bottom:2px;}
+  .feat span{font-size:13px; color:var(--ink-soft);}
+
+  /* laptop mock */
+  .laptop{
+    background:#1c1a18; border-radius:16px 16px 0 0; padding:16px 18px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.35);
+    position:relative;
+  }
+  .laptop-bar{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .dots{display:flex; gap:6px;}
+  .dots span{width:9px; height:9px; border-radius:50%; background:#4a4642;}
+  .laptop-bar .fname{font-size:11px; color:#8a857e; display:flex; align-items:center; gap:6px;}
+  .laptop-bar .fname i{width:6px; height:6px; border-radius:50%; background:#8fd17a; display:inline-block;}
+  .code{font-family:'SFMono-Regular', Menlo, Consolas, monospace; font-size:12.5px; line-height:1.85;}
+  .code .ln{color:#5c5852; display:inline-block; width:18px;}
+  .code .tag{color:#e08a5a;}
+  .code .str{color:#8fbf7a;}
+  .code .attr{color:#c98fdc;}
+  .code .txt{color:#d8d3c9;}
+  .laptop-foot{margin-top:14px; font-size:11.5px; color:#6b665f;}
+  .laptop-base{
+    height:14px; background:linear-gradient(#3a3733,#26241f);
+    border-radius:0 0 10px 10px; margin:0 -3px;
+    box-shadow:0 8px 18px -6px rgba(0,0,0,.4);
+  }
+  .laptop-shell{max-width:520px; margin:0 auto;}
+
+  /* ===== LOGOS ===== */
+  .logos-strip{padding:40px 0 10px; text-align:center;}
+  .logos-strip p{color:var(--ink-soft); font-size:14px; margin-bottom:30px;}
+  .logos-row{
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+    gap:44px; opacity:.55; font-weight:700; font-size:17px; color:var(--ink-soft);
+  }
+
+  /* ===== SECTION SHARED ===== */
+  section{padding:40px 0; scroll-margin-top:90px;}
+  .sec-head{max-width:640px; margin-bottom:44px;}
+  .sec-head h2{font-size:clamp(28px,3.6vw,40px); font-weight:800; margin:16px 0 14px; letter-spacing:-.01em;}
+  .sec-head p{color:var(--ink-soft); font-size:16px; line-height:1.6;}
+
+  /* ===== SERVICES ===== */
+  .services-grid{display:grid; grid-template-columns:1fr; gap:20px;}
+  @media(min-width:760px){ .services-grid{grid-template-columns:1fr 1fr;} }
+  .s-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:30px; display:flex; gap:18px;
+    box-shadow:0 20px 40px -30px rgba(60,45,20,.2);
+  }
+  .s-ic{
+    width:52px; height:52px; border-radius:14px; background:#fde7d8; color:var(--orange);
+    display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;
+  }
+  .s-card h3{font-size:18px; margin-bottom:8px;}
+  .s-card p{font-size:14.5px; color:var(--ink-soft); line-height:1.55;}
+
+  /* ===== PORTFOLIO ===== */
+  .port-grid{display:grid; grid-template-columns:1fr; gap:26px;}
+  @media(min-width:900px){ .port-grid{grid-template-columns:repeat(3,1fr);} }
+  .p-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 20px 40px -28px rgba(60,45,20,.25);
+  }
+  .p-shot{
+    padding:22px; display:flex; align-items:center; justify-content:center;
+    min-height:170px;
+  }
+  .p-shot .mini-laptop{
+    width:100%; border-radius:8px 8px 0 0; padding:16px 18px; color:#fff;
+    font-size:13px; font-weight:700;
+  }
+  .p-shot .mini-laptop small{display:block; font-weight:400; font-size:10.5px; opacity:.85; margin-top:4px;}
+  .p-body{padding:0 26px 28px;}
+  .tag-pill{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
+    padding:6px 12px; border-radius:999px; margin-bottom:14px;
+  }
+  .p-card h3{font-size:19px; margin-bottom:10px; line-height:1.3;}
+  .p-card .desc{font-size:14px; color:var(--ink-soft); line-height:1.55; margin-bottom:16px;}
+  .stack-label, .res-label{font-size:12.5px; font-weight:700; color:var(--ink); margin-bottom:8px;}
+  .stack{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+  .stack span{background:var(--cream-2); font-size:12px; padding:5px 10px; border-radius:8px; color:var(--ink-soft);}
+  .res-text{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:18px;}
+  .p-link{font-size:14px; font-weight:700; display:inline-flex; align-items:center; gap:6px;}
+
+  /* ===== PROCESS ===== */
+  .process-line{position:relative;}
+  .steps{
+    display:grid; grid-template-columns:1fr; gap:24px; margin-top:36px; position:relative;
+  }
+  @media(min-width:960px){
+    .steps{grid-template-columns:repeat(5,1fr); gap:16px;}
+    .steps::before{
+      content:""; position:absolute; top:22px; left:10%; right:10%; height:2px;
+      background:linear-gradient(90deg,var(--orange),var(--olive)); opacity:.4; z-index:0;
+    }
+  }
+  .step{position:relative; z-index:1;}
+  .step-num{
+    width:44px; height:44px; border-radius:50%; background:#fff; border:2px solid var(--orange);
+    color:var(--orange); font-weight:800; font-size:15px;
+    display:flex; align-items:center; justify-content:center; margin-bottom:16px;
+  }
+  .step-card{
+    background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px;
+    height:100%;
+  }
+  .step-ic{
+    width:38px; height:38px; border-radius:10px; background:#fde7d8; color:var(--orange);
+    display:flex; align-items:center; justify-content:center; font-size:16px; margin-bottom:14px;
+  }
+  .step-card h4{font-size:16px; margin-bottom:8px;}
+  .step-card p{font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+
+  /* ===== CONTACT CTA ===== */
+  .cta-box{
+    margin-top:64px; background:linear-gradient(120deg, #fdece0, #f7f0d9);
+    border:1px solid var(--border); border-radius:24px;
+    padding:44px 40px; display:flex; flex-direction:column; gap:28px;
+    scroll-margin-top:90px;
+  }
+  @media(min-width:860px){ .cta-box{flex-direction:row; align-items:center; justify-content:space-between;} }
+  .cta-box h2{font-size:clamp(24px,3vw,32px); font-weight:800; line-height:1.25; max-width:460px;}
+  .cta-box .sub{color:var(--ink-soft); font-size:14.5px; margin-top:12px; max-width:420px;}
+  .cta-actions{display:flex; flex-direction:column; gap:12px; min-width:230px;}
+
+  footer{padding:40px 0 60px; text-align:center; color:var(--ink-soft); font-size:13px;}
+
+  @media(max-width:640px){
+    .wrap{padding:0 20px;}
+    nav.wrap{padding:18px 20px;}
+    section{padding:24px 0;}
+    .hero{padding:48px 0 24px;}
+    .logos-strip{padding:24px 0 10px;}
+    footer{padding:24px 0 40px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo"><span class="logo-mark"></span> VibeCoder</div>
+    <div class="nav-links">
+      <a href="#portfolio">Проекты</a>
+      <a href="#hero">Обо мне</a>
+      <a href="#services">Услуги</a>
+      <a href="#process">Подход</a>
+      <a href="#steps">Этапы работы</a>
+    </div>
+    <a href="#contact" class="btn btn-dark nav-cta" onclick="event.preventDefault(); document.getElementById('contact').scrollIntoView({behavior:'smooth'});">Связаться ↗</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-waves"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Vibe · Code · Result</span>
+      <h1>
+        ВАЙБ-КОДИНГ.
+        <span class="solid-orange">ЛЕНДИНГИ,</span>
+        <span class="grad-text">которые чувствуются.</span>
+      </h1>
+      <p class="lead">Создаю быстрые, адаптивные и стильные лендинги, которые передают атмосферу бренда и приводят клиентов.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-dark" onclick="event.preventDefault(); document.getElementById('contact').scrollIntoView({behavior:'smooth'});">Заказать лендинг ↗</a>
+        <a href="#portfolio" class="btn btn-light" onclick="event.preventDefault(); document.getElementById('portfolio').scrollIntoView({behavior:'smooth'});">Смотреть проекты</a>
+      </div>
+      <div class="hero-feats">
+        <div class="feat"><div class="feat-ic a">⚡</div><div><b>Быстро</b><span>От идеи до запуска</span></div></div>
+        <div class="feat"><div class="feat-ic b">✨</div><div><b>Стильно</b><span>Чистый и современный дизайн</span></div></div>
+        <div class="feat"><div class="feat-ic c">♡</div><div><b>С душой</b><span>Понимаю ваш вайб</span></div></div>
+      </div>
+    </div>
+    <div class="laptop-shell">
+      <div class="laptop">
+        <div class="laptop-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="fname"><i></i> index.html</div>
+        </div>
+        <div class="code">
+<div><span class="ln">1</span> <span class="tag">&lt;section</span> <span class="attr">class</span>="hero"<span class="tag">&gt;</span></div>
+<div><span class="ln">2</span>&nbsp;&nbsp;<span class="tag">&lt;div</span> <span class="attr">class</span>="container"<span class="tag">&gt;</span></div>
+<div><span class="ln">3</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;h1&gt;</span><span class="txt">Кодирую идеи.</span><span class="tag">&lt;/h1&gt;</span></div>
+<div><span class="ln">4</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;span&gt;</span><span class="txt">Создаю вайб</span><span class="tag">&lt;/span&gt;</span></div>
+<div><span class="ln">5</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;p&gt;</span><span class="txt">Лендинги, которые работают на вас</span><span class="tag">&lt;/p&gt;</span></div>
+<div><span class="ln">6</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;button</span> <span class="attr">class</span>="btn"<span class="tag">&gt;</span><span class="txt">Заказать лендинг</span><span class="tag">&lt;/button&gt;</span></div>
+<div><span class="ln">7</span>&nbsp;&nbsp;<span class="tag">&lt;/div&gt;</span></div>
+<div><span class="ln">8</span> <span class="tag">&lt;/section&gt;</span></div>
+        </div>
+        <div class="laptop-foot">vibecoder@portfolio:~$ &nbsp;|</div>
+      </div>
+      <div class="laptop-base"></div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<section id="portfolio">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow uc">Портфолио</span>
+      <h2>Избранные <span class="grad-text">проекты</span></h2>
+      <p>Реальные учебные проекты, созданные с акцентом на дизайн, скорость и удобство для пользователей.</p>
+    </div>
+    <div class="port-grid">
+
+      <div class="p-card">
+        <div class="p-shot" style="background:linear-gradient(135deg,#f4efe3,#e9e2d0);">
+          <svg viewBox="0 0 400 240" style="width:100%; height:auto; border-radius:10px; box-shadow:0 18px 34px -18px rgba(40,30,10,.35);" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="240" rx="10" fill="#faf7f0"/>
+            <rect width="400" height="26" rx="10" fill="#f1ece0"/>
+            <circle cx="18" cy="13" r="4" fill="#e7a97a"/><circle cx="32" cy="13" r="4" fill="#e3cf8f"/><circle cx="46" cy="13" r="4" fill="#a9c98f"/>
+            <text x="200" y="17" text-anchor="middle" font-family="Arial" font-size="10" fill="#8a8577">ovenmeal.com</text>
+            <text x="26" y="80" font-family="Arial" font-weight="700" font-size="20" fill="#231f19">Сервис доставки</text>
+            <text x="26" y="104" font-family="Arial" font-weight="700" font-size="20" fill="#231f19">здорового питания</text>
+            <rect x="26" y="130" width="122" height="30" rx="15" fill="#7ba85a"/>
+            <text x="87" y="150" text-anchor="middle" font-family="Arial" font-size="11" fill="#fff">Заказать меню</text>
+            <circle cx="300" cy="130" r="72" fill="#f1ede0"/>
+            <circle cx="300" cy="130" r="58" fill="#fbfaf5"/>
+            <path d="M270 108 q30 -22 58 2 q10 22 -8 40 q-30 22 -58 -4 q-10 -20 8 -38 Z" fill="#8fb96a"/>
+            <circle cx="288" cy="120" r="12" fill="#e2793f"/>
+            <circle cx="316" cy="150" r="10" fill="#d9483f"/>
+            <circle cx="300" cy="106" r="9" fill="#f3d67b"/>
+            <circle cx="322" cy="118" r="7" fill="#e2793f"/>
+            <circle cx="278" cy="146" r="8" fill="#f3d67b"/>
+          </svg>
+        </div>
+        <div class="p-body">
+          <span class="tag-pill" style="background:#e9f4dc; color:#5f8a2b;">🥗 Доставка еды</span>
+          <h3>Лендинг для сервиса доставки еды</h3>
+          <p class="desc">Одностраничный лендинг с акцентом на преимущества, форму заказа и мобильную адаптацию.</p>
+          <div class="stack-label">Стек:</div>
+          <div class="stack"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+          <div class="res-label">Результат:</div>
+          <p class="res-text">Чистый и продающий дизайн, высокая скорость загрузки, адаптивность под все устройства.</p>
+          <a class="p-link" href="#">Смотреть проект →</a>
+        </div>
+      </div>
+
+      <div class="p-card">
+        <div class="p-shot" style="background:linear-gradient(135deg,#eef2f6,#dfe6ee);">
+          <svg viewBox="0 0 400 240" style="width:100%; height:auto; border-radius:10px; box-shadow:0 18px 34px -18px rgba(20,30,45,.3);" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="240" rx="10" fill="#f4f7fb"/>
+            <rect width="400" height="26" rx="10" fill="#e9eef4"/>
+            <circle cx="18" cy="13" r="4" fill="#e7a97a"/><circle cx="32" cy="13" r="4" fill="#e3cf8f"/><circle cx="46" cy="13" r="4" fill="#a9c98f"/>
+            <text x="200" y="17" text-anchor="middle" font-family="Arial" font-size="10" fill="#7c8894">homey.com</text>
+            <text x="26" y="80" font-family="Arial" font-weight="700" font-size="20" fill="#1e2c3d">Найдите дом</text>
+            <text x="26" y="104" font-family="Arial" font-weight="700" font-size="20" fill="#1e2c3d">своей мечты</text>
+            <rect x="26" y="130" width="122" height="30" rx="15" fill="#3f6fd1"/>
+            <text x="87" y="150" text-anchor="middle" font-family="Arial" font-size="11" fill="#fff">Смотреть дома</text>
+            <rect x="228" y="150" width="150" height="60" fill="#dfe6ee"/>
+            <polygon points="228,150 303,96 378,150" fill="#c96a4a"/>
+            <rect x="250" y="165" width="106" height="35" fill="#eef2f6" stroke="#c7d0da" stroke-width="1"/>
+            <rect x="260" y="172" width="18" height="18" fill="#9cc4e6"/>
+            <rect x="290" y="172" width="18" height="18" fill="#9cc4e6"/>
+            <rect x="320" y="172" width="18" height="18" fill="#8fae5f"/>
+            <circle cx="352" cy="100" r="14" fill="#f3d67b"/>
+          </svg>
+        </div>
+        <div class="p-body">
+          <span class="tag-pill" style="background:#fdeadb; color:#c56a1f;">🏠 Недвижимость</span>
+          <h3>Многостраничный сайт агентства недвижимости</h3>
+          <p class="desc">Корпоративный сайт с каталогом объектов, страницей услуг и формой обратной связи.</p>
+          <div class="stack-label">Стек:</div>
+          <div class="stack"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>Swiper</span></div>
+          <div class="res-label">Результат:</div>
+          <p class="res-text">Удобная навигация, структурированная подача информации и адаптивный интерфейс.</p>
+          <a class="p-link" href="#">Смотреть проект →</a>
+        </div>
+      </div>
+
+      <div class="p-card">
+        <div class="p-shot" style="background:linear-gradient(135deg,#241f3d,#120f22);">
+          <svg viewBox="0 0 400 240" style="width:100%; height:auto; border-radius:10px; box-shadow:0 18px 34px -18px rgba(0,0,0,.5);" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="glow" cx="70%" cy="45%" r="60%">
+                <stop offset="0%" stop-color="#7a4fd1" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#1a1730" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="240" rx="10" fill="#1a1730"/>
+            <rect width="400" height="240" rx="10" fill="url(#glow)"/>
+            <rect width="400" height="26" rx="10" fill="#221d3a"/>
+            <circle cx="18" cy="13" r="4" fill="#e7a97a"/><circle cx="32" cy="13" r="4" fill="#e3cf8f"/><circle cx="46" cy="13" r="4" fill="#a9c98f"/>
+            <text x="200" y="17" text-anchor="middle" font-family="Arial" font-size="10" fill="#9d94c4">nexta.io</text>
+            <text x="26" y="80" font-family="Arial" font-weight="700" font-size="20" fill="#ffffff">Запуск нового</text>
+            <text x="26" y="104" font-family="Arial" font-weight="700" font-size="20" fill="#ffffff">продукта</text>
+            <rect x="26" y="130" width="140" height="30" rx="15" fill="#8a5cf0"/>
+            <text x="96" y="150" text-anchor="middle" font-family="Arial" font-size="11" fill="#fff">Ранняя регистрация</text>
+            <rect x="272" y="80" width="86" height="140" rx="16" fill="#0f0d20" stroke="#40376b" stroke-width="2"/>
+            <rect x="282" y="96" width="66" height="98" rx="6" fill="#2a2350"/>
+            <circle cx="315" cy="204" r="5" fill="#40376b"/>
+            <circle cx="300" cy="130" r="18" fill="#8a5cf0" opacity=".8"/>
+            <circle cx="330" cy="160" r="10" fill="#c9a6ff" opacity=".7"/>
+            <circle cx="240" cy="60" r="4" fill="#c9a6ff"/>
+            <circle cx="220" cy="150" r="3" fill="#8a5cf0"/>
+          </svg>
+        </div>
+        <div class="p-body">
+          <span class="tag-pill" style="background:#efe4fa; color:#7a3fc4;">💻 Технологии</span>
+          <h3>Промо-страница IT-продукта</h3>
+          <p class="desc">Промо-лендинг для анонса продукта с адаптивным дизайном и плавными микро-взаимодействиями.</p>
+          <div class="stack-label">Стек:</div>
+          <div class="stack"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+          <div class="res-label">Результат:</div>
+          <p class="res-text">Сильная визуальная подача, акцент на пользе и CTA для ранней регистрации.</p>
+          <a class="p-link" href="#">Смотреть проект →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS + CONTACT -->
+<div class="logos-strip wrap">
+  <p>Trusted by modern teams building better customer experiences.</p>
+  <div class="logos-row">
+    <span>HubSpot</span><span>JOBBER</span><span>FUNDRISE</span><span>docker</span><span>vidyard</span><span>Hazel Health</span><span>Airbyte</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow uc">Мои услуги</span>
+      <h2>Что я <span class="grad-text">делаю</span></h2>
+      <p>Создаю современные веб-решения, которые помогают бизнесу привлекать клиентов и достигать целей.</p>
+    </div>
+    <div class="services-grid">
+      <div class="s-card">
+        <div class="s-ic">▢</div>
+        <div>
+          <h3>Лендинг</h3>
+          <p>Разрабатываю продающие лендинги, которые захватывают внимание и конвертируют посетителей в заявки.</p>
+        </div>
+      </div>
+      <div class="s-card">
+        <div class="s-ic">▤</div>
+        <div>
+          <h3>Многостраничный сайт</h3>
+          <p>Создаю удобные и масштабируемые сайты для бизнеса с продуманной структурой и современным дизайном.</p>
+        </div>
+      </div>
+      <div class="s-card">
+        <div class="s-ic">🚀</div>
+        <div>
+          <h3>Промо-страница</h3>
+          <p>Делаю яркие промо-страницы для запуска продуктов, акций и мероприятий с акцентом на результат.</p>
+        </div>
+      </div>
+      <div class="s-card">
+        <div class="s-ic">📝</div>
+        <div>
+          <h3>Простая интеграция форм</h3>
+          <p>Интегрирую формы обратной связи с почтой, CRM и другими сервисами для автоматизации процессов.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="process">
+  <div class="wrap">
+    <div class="sec-head" id="steps">
+      <span class="eyebrow uc">Мой подход</span>
+      <h2>Как я <span class="grad-text">работаю</span></h2>
+      <p>Простой и прозрачный процесс — от идеи до запуска. Вы всегда знаете, на каком этапе проект.</p>
+    </div>
+
+    <div class="process-line steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-card">
+          <div class="step-ic">💬</div>
+          <h4>Бриф</h4>
+          <p>Обсуждаем цели, задачи и аудиторию. Собираю всю нужную информацию.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-card">
+          <div class="step-ic">▤</div>
+          <h4>Прототип</h4>
+          <p>Создаю структуру страницы и логику блоков. Согласуем наполнение.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-card">
+          <div class="step-ic">✎</div>
+          <h4>Дизайн</h4>
+          <p>Разрабатываю визуальный стиль и адаптирую под все устройства.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-card">
+          <div class="step-ic">&lt;/&gt;</div>
+          <h4>Сборка</h4>
+          <p>Верстаю сайт на чистом коде. Подключаю анимации и базовую оптимизацию.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-card">
+          <div class="step-ic">➤</div>
+          <h4>Передача</h4>
+          <p>Тестирую, публикую и передаю проект. При необходимости — поддержка.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-box" id="contact">
+      <div>
+        <h2>Готовы запустить <span class="grad-text">крутой проект?</span></h2>
+        <p class="sub">Напишите мне удобным способом — обсудим вашу идею и найдём лучшее решение.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="https://t.me/test_bezz" target="_blank" rel="noopener noreferrer" class="btn btn-dark">✈ Написать в Telegram ↗</a>
+        <a href="mailto:testbezz@gmail.com" target="_top" class="btn btn-light" onclick="window.location.href='mailto:testbezz@gmail.com';">✉ Написать на Email ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">© 2026 VibeCoder. Вайб-кодинг лендингов, которые чувствуются.</footer>
+
+</body>
+</html>
